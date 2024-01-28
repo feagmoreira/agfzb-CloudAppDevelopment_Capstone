@@ -94,10 +94,11 @@ def analyze_review_sentiments(text):
   url = "https://api.us-south.natural-language-understanding.watson.cloud.ibm.com/instances/1b237cde-3875-4199-a65b-4aada03d00fc/v1/analyze"
   api_key = "mbbcv0x8SzZ5KlPMDuSVZQA5rz_5EMIlRjm1okQGNZJY"
   version = '2022-04-07'
-  features = {'sentiment':{}}  return_analyzed_text = True
-  json_result = get_request(url, api_key=api_key, version=version, features = features, return_analyzed_text = return_analyzed_text)
+  features = {"sentiment":{}}
+  return_analyzed_text = Truerl, api_key=api_key, version=version, features = features, return_analyzed_text = return_analyzed_text)
   if json_result:
-        # Get label value
+))(_
+  _        # Get label value
     sentiment= json_result["sentiment"]["target"][0]["label"]   
 
   return sentiment
