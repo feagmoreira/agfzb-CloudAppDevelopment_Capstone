@@ -86,4 +86,5 @@ class DealerReview:
         return "Review id: " + str((self.id)) + ", " + \
                "Dearlership: " + str((self.dealership)) + ", " + \
                "Name: " + self.review + ", " + \
-               "Review: " + self.review
+               "Review: " + self.review + ", " + \
+               "Sentiment: " + self.sentiment
