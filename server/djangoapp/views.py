@@ -1,9 +1,9 @@
 from django.shortcuts import render
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, HttpResponseForbidden
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 from .models import CarDealer, DealerReview
-from .restapis import get_request, get_dealers_from_cf, get_dealer_reviews_from_cf, analyze_review_sentiments
+from .restapis import get_request, get_dealers_from_cf, get_dealer_reviews_from_cf, analyze_review_sentiments, post_request
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from datetime import datetime
@@ -112,6 +112,34 @@ def get_dealer_details(request, dealer_id):
         return HttpResponse(reviews)
 
 # Create a `add_review` view to submit a review
-# def add_review(request, dealer_id):
-# ...
+def add_review(request, dealer_id):
+    # Handles POST request
+    if request.method == "POST" and request.body:
+        url = "https://feagmoreira-5000.theiadockernext-1-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/api/post_review"
+        # Post will be executed only if user is logged
+        #if request.user.is_authenticated:
+        json_body = json.loads(request.body)
+            # If user is valid, create post body
+        review = {}
+        review["id"] = json_body["id"]
+        review["name"] = json_body["name"]
+        review["dealership"] = dealer_id
+        review["review"] = json_body["review"]
+        review["purchase"] = json_body["purchase"]
+        review["purchase_date"] = json_body["purchase_date"]
+        review["car_make"] = json_body["car_make"]
+        review["car_model"] = json_body["car_model"]
+        review["car_year"] = json_body["car_year"]
+            # Encapsulate body
+        json_payload = {}
+        json_payload["review"] = review
+            # Execute POST request to Backend
+        response = post_request(url, json_payload)
+            # Return reponse
+        return HttpResponse(response)
+        #else:
+        #    return HttpResponseForbidden("User not logged in!")
+    #else:
+       # return HttpResponseForbidden("User not logged in!")
+
 
