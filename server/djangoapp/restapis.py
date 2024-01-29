@@ -2,6 +2,9 @@ import requests
 import json
 from .models import CarDealer, DealerReview
 from requests.auth import HTTPBasicAuth
+from ibm_watson import NaturalLanguageUnderstandingV1
+from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
+from ibm_watson.natural_language_understanding_v1 import Features, SentimentOptions
 
 
 # Create a `get_request` to make HTTP GET requests
@@ -81,27 +84,23 @@ def get_dealer_reviews_from_cf(url, dealer_id):
                                    review=review_doc["review"], purchase_date=review_doc["purchase_date"], car_make=review_doc["car_make"],
                                    car_model=review_doc["car_model"],
                                    car_year=review_doc["car_year"], id=review_doc["id"])
+
             review_obj.sentiment = analyze_review_sentiments(review_obj.review)
             results.append(review_obj)
 
     return results
 
-
-
-# Create an `analyze_review_sentiments` method to call Watson NLU and analyze text
 def analyze_review_sentiments(text):
-  sentiment = ""
-  url = "https://api.us-south.natural-language-understanding.watson.cloud.ibm.com/instances/1b237cde-3875-4199-a65b-4aada03d00fc/v1/analyze"
-  api_key = "mbbcv0x8SzZ5KlPMDuSVZQA5rz_5EMIlRjm1okQGNZJY"
-  version = '2022-04-07'
-  features = {"sentiment":{}}
-  return_analyzed_text = Truerl, api_key=api_key, version=version, features = features, return_analyzed_text = return_analyzed_text)
-  if json_result:
-))(_
-  _        # Get label value
-    sentiment= json_result["sentiment"]["target"][0]["label"]   
+    url = "https://api.us-south.natural-language-understanding.watson.cloud.ibm.com/instances/1b237cde-3875-4199-a65b-4aada03d00fc"
+    api_key = "SjTLEhh6AWRvjsEDgA3XhITiGM1EmTvD6iGBtDuJFaBK"
+    authenticator = IAMAuthenticator(api_key)
+    natural_language_understanding = NaturalLanguageUnderstandingV1(version='2022-04-07',authenticator=authenticator)
+    natural_language_understanding.set_service_url(url)
+    response = natural_language_understanding.analyze(text=text,features=Features(sentiment=SentimentOptions(document=True)), language= 'en').get_result()
+    label=json.dumps(response, indent=2)
+    label = response['sentiment']['document']['label']
 
-  return sentiment
+    return(label)
 
 
 

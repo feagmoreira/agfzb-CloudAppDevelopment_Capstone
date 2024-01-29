@@ -85,6 +85,6 @@ class DealerReview:
     def __str__(self):
         return "Review id: " + str((self.id)) + ", " + \
                "Dearlership: " + str((self.dealership)) + ", " + \
-               "Name: " + self.review + ", " + \
+               "Name: " + self.name + ", " + \
                "Review: " + self.review + ", " + \
                "Sentiment: " + self.sentiment
