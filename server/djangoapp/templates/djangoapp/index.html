@@ -44,6 +44,31 @@
     </nav>
 
     <!--Add a dealer table here -->
+    {% if dealerships %}
+    <table class="table" id="table">
+        <thead>
+          <tr>
+            <th data-field="id">ID</th>
+            <th data-field="dealer_name">Dealer Name</th>
+            <th data-field="city">City</th>
+            <th data-field="Zip">Zip</th>
+            <th data-field="State">State</th>
+          </tr>
+        </thead>
+        <tbody>
+            {% for dealer in dealerships %}    
+          <tr>
+            <td>{{dealer.id}}</td>
+            <td><a href="{% url 'djangoapp:dealer_details' dealer.id %}">{{dealer.full_name}}</a></td>
+            <td>{{dealer.city}}</td>
+            <td>{{dealer.zip}}</td>
+            <td>{{dealer.st}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+      
     <!-- Footer-->
     <div class="container">
         <footer class="py-3 my-4">
