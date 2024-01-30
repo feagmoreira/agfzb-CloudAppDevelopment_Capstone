@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect, HttpResponse, HttpResponseForbidde
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 from .models import CarDealer, DealerReview
-from .restapis import get_request, get_dealers_from_cf, get_dealer_reviews_from_cf, analyze_review_sentiments, post_request
+from .restapis import get_request, get_dealers_from_cf, get_dealer_reviews_from_cf, analyze_review_sentiments, post_request, get_dealer_by_id_from_cf
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from datetime import datetime
@@ -102,15 +102,22 @@ def get_dealerships(request):
         # Render index with the dealerships
         return render(request, 'djangoapp/index.html', context)
 
-
 # Create a `get_dealer_details` view to render the reviews of a dealer
 def get_dealer_details(request, dealer_id):
+    context ={}
     if request.method == "GET":
-        url = "https://feagmoreira-5000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/api/get_reviews"
+        url = "https://feagmoreira-5000.theiadockernext-1-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/api/get_reviews"
+        url_dealer = "https://feagmoreira-3000.theiadockernext-1-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get"
         # Get reviews from the URL
         reviews = get_dealer_reviews_from_cf(url, dealer_id)
+        # Get dealer from the URL
+        dealer = get_dealer_by_id_from_cf(url_dealer, dealer_id)
+        # Append reviews list to context
+        context["reviews"] = reviews
+        #Append list to the dictionary
+        context["dealer"] = dealer
         # Return a list of reviews
-        return HttpResponse(reviews)
+        return render(request, 'djangoapp/dealer_details.html', context)
 
 # Create a `add_review` view to submit a review
 def add_review(request, dealer_id):
@@ -138,9 +145,7 @@ def add_review(request, dealer_id):
         response = post_request(url, json_payload)
             # Return reponse
         return HttpResponse(response)
-        #else:
-        #    return HttpResponseForbidden("User not logged in!")
-    #else:
-       # return HttpResponseForbidden("User not logged in!")
+    else:
+        return HttpResponseForbidden("User not logged in!")
 
 

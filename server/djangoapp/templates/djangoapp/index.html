@@ -45,14 +45,14 @@
 
     <!--Add a dealer table here -->
     {% if dealerships %}
-    <table class="table" id="table">
+    <table class="table" id="table" data-filter-control="true">
         <thead>
           <tr>
             <th data-field="id">ID</th>
             <th data-field="dealer_name">Dealer Name</th>
             <th data-field="city">City</th>
             <th data-field="Zip">Zip</th>
-            <th data-field="State">State</th>
+            <th data-field="state" data-filter-control="select">State</th>
           </tr>
         </thead>
         <tbody>
@@ -80,5 +80,10 @@
         </footer>
       </div>
     </body>
+    <script>
+        $(function() {
+          $('#table').bootstrapTable()
+        })
+      </script>
 
 </html>

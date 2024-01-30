@@ -8,11 +8,68 @@
 </head>
 
     <body>
-
     <!--Add a nav bar here -->
-
+    <nav class="navbar navbar-light bg-light">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Dearlership Review</a>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+                {% if user.is_authenticated %}
+                <li>
+                    <a class="btn btn-link" href="{% url 'djangoapp:add_review' %}">Add Review</a>
+                    <a class="btn btn-link" href="#">{{ user.first_name }}({{ user.username }})</a>
+                    <a class="btn btn-link" href="{% url 'djangoapp:logout' %}">Logout</a>
+                </li>
+                {% else %}
+                <li>
+                    <form class="form-inline" action="{% url 'djangoapp:login' %}" method="post">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Username" name="username" >
+                            <input type="password" class="form-control" placeholder="Password" name="psw" >
+                            <button class="btn btn-primary" type="submit">Login</button>
+                            <a class="btn btn-link" href="{% url 'djangoapp:registration' %}">Sign Up</a>
+                        </div>
+                    </form>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
     <!-- Add reviews as cards -->
-
+    <h3> Reviews for <b>{{dealer.full_name}}</b></h3>
+    {% if reviews %}
+    <div class="card-columns">
+        {% for review in reviews %}
+            <div class="card">
+                {% if review.sentiment == "positive" %}
+                <img class="card-img-left" src="{{MEDIA_URL}}/emoji/positive.png" width="30px" height="30px">
+                {% elif review.sentiment == "neutral" %}
+                <img class="card-img-left" src="{{MEDIA_URL}}/emoji/neutral.png" width="30px" height="30px">        
+                {% else %}
+                <img class="card-img-left" src="{{MEDIA_URL}}/emoji/negative.png" width="30px" height="30px">
+                {% endif %}
+                <div class="card-body bg-light">
+                    <h5 class="card-title">{{review.car_make}}, {{review.car_model}}, {{review.car_year}}</h5>
+                    <h5 class="card-title">Purchase Date: {{review.purchase_date}}</h5>
+                    <p class="card-text">{{review.review}}</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Footer-->
+    <div class="container">
+        <footer class="py-3 my-4">
+          <ul class="nav justify-content-center border-bottom pb-3 mb-3">
+            <li class="nav-item"><a href="{% url 'djangoapp:about' %}" class="nav-link px-2 text-body-secondary">About Us</a></li>
+            <li class="nav-item"><a href="{% url 'djangoapp:contact' %}" class="nav-link px-2 text-body-secondary">Contact Us</a></li>
+          </ul>
+          <p class="text-center text-body-secondary">© 2024 Best Cars</p>
+        </footer>
+      </div>
     </body>
 
 </html>
