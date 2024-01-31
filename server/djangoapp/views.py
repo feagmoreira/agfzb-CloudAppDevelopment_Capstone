@@ -1,14 +1,15 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseForbidden
 from django.contrib.auth.models import User
-from django.shortcuts import get_object_or_404, render, redirect
-from .models import CarDealer, DealerReview
+from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
+from .models import CarDealer, DealerReview, CarMake, CarModel
 from .restapis import get_request, get_dealers_from_cf, get_dealer_reviews_from_cf, analyze_review_sentiments, post_request, get_dealer_by_id_from_cf
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from datetime import datetime
 import logging
 import json
+import random
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -121,30 +122,42 @@ def get_dealer_details(request, dealer_id):
 
 # Create a `add_review` view to submit a review
 def add_review(request, dealer_id):
+    # Hangels GET request
+    if request.method == "GET":
+        context ={}
+        # Get Dealer
+        url_dealer = "https://feagmoreira-3000.theiadockernext-1-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get"
+        dealer = get_dealer_by_id_from_cf(url_dealer, dealer_id)
+        context["dealer"] = dealer
+        # Get Car
+        cars = get_list_or_404(CarModel, Dealer_Id=dealer_id)
+        print(cars)
+        context["cars"] = cars
+        return render(request, 'djangoapp/add_review.html', context)
     # Handles POST request
     if request.method == "POST" and request.body:
         url = "https://feagmoreira-5000.theiadockernext-1-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/api/post_review"
         # Post will be executed only if user is logged
-        #if request.user.is_authenticated:
-        json_body = json.loads(request.body)
-            # If user is valid, create post body
-        review = {}
-        review["id"] = json_body["id"]
-        review["name"] = json_body["name"]
-        review["dealership"] = dealer_id
-        review["review"] = json_body["review"]
-        review["purchase"] = json_body["purchase"]
-        review["purchase_date"] = json_body["purchase_date"]
-        review["car_make"] = json_body["car_make"]
-        review["car_model"] = json_body["car_model"]
-        review["car_year"] = json_body["car_year"]
+        if request.user.is_authenticated:
+            # Retrieve car
+            car = get_object_or_404(CarModel, pk=request.POST.get("car"))
+            review = {}
+            review["id"] = car.id + random.randint(1000,9999)
+            review["name"] = request.user.first_name + request.user.last_name
+            review["dealership"] = dealer_id
+            review["review"] = request.POST.get("content")
+            review["purchase"] = request.POST.get("purchasecheck")
+            review["purchase_date"] = request.POST.get("purchasedate")
+            review["car_make"] = car.Make.Name
+            review["car_model"] = car.Name
+            review["car_year"] = car.Year.strftime("%Y")
             # Encapsulate body
-        json_payload = {}
-        json_payload["review"] = review
+            json_payload = {}
+            json_payload["review"] = review
             # Execute POST request to Backend
-        response = post_request(url, json_payload)
+            response = post_request(url, json_payload)
             # Return reponse
-        return HttpResponse(response)
+            return redirect("djangoapp:dealer_details", dealer_id=dealer_id)
     else:
         return HttpResponseForbidden("User not logged in!")
 
